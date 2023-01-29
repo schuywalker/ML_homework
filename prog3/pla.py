@@ -31,11 +31,11 @@ class PLA:
         '''
         
         if(self.degree > 1):
-            X = MyUtils.z_transform(X, degree=self.degree)
-
+            Z = MyUtils.z_transform(X, degree=self.degree)
+        
             
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+#         raise NotImplementedError()
         ### END YOUR SOLUTION
             
                           

@@ -76,16 +76,72 @@ class MyUtils:
             return X
         
         ### BEGIN YOUR SOLUTION
-        
+#         degree = degree
+        print(degree)
         B = list() # BucketSizes
-        for i in range(degree):
-#             Math.Comb returns an integer value which represents the number of ways to choose k items from n items without repetition and without order.
-            numFeatures = len(X[0])
-            print(numFeatures)
-            B.append(math.comb(i+1,numFeatures))
-
+        numFeatures = len(X[0]) # (d)
+        print(numFeatures)
         
-        raise NotImplementedError()
+        for i in range(1,degree+1):
+            if (i <= 1):
+                B.append(int((i+numFeatures-1)/(numFeatures-1)))
+            else:
+                B.append(int(((i+numFeatures-1)/(numFeatures-1))+B[i-2]))
+
+        print(numFeatures)        
+        print(B)
+        
+        Z = X
+        
+        dPrime = len(B)
+        L = list()
+        for i in range(numFeatures):
+            L.append(i)
+        q = 0 # total size of all buckets before PREVIOUS bucket
+        p = numFeatures -1# total size of all previous buckets
+        g = numFeatures -1# index of the new column
+        print(L,q,p,g)
+        
+        print("L:",L)
+        print("Z:",Z)
+        print("X:",X) 
+        
+        for i in range(2,degree): # for each dimension elevation
+            print("TOP OF DIMENSION i LOOP RUN:\ni: ", i, "Z: ", Z, "L: ", L)
+            for r in Z:
+                print(*r)
+            for j in range(q,p): # for each element in previous bucket
+        #         print("hi2 g=", g)
+                for k in range(L[j],numFeatures):
+                    print("\n\nK RIGHT HERE =", k)
+        #             for each feature, starting at 
+        #             the last buckets corresponding largestFeatures list
+
+                    temp = []
+                    for ii in range(len(Z)):
+                        temp.append(Z[ii][j]*X[ii][k])
+
+                    print("temp: ",temp)
+                    temp2 = np.arange(len(Z))
+                    for i in range(len(temp)):
+        #                 temp2[i] = temp[i]
+                        Z[i].append(temp[i])
+        #             np.append(Z,temp2.reshape(-1,1),1)
+
+
+                    print("numFeatuers", numFeatures)
+                    L.append(k)
+                    L[g] = k
+                    g += 1
+                    print("i: ",i ," j: ", j," k: ",k, "g: ",g, ", L: ", L, ", L[g]: ", L[g])
+
+
+            q = p # new total size of all previous buckets
+            p = p + B[i]
+        
+        return Z
+            
+        
         ### END YOUR SOLUTION
         
         
