@@ -13,6 +13,7 @@ import numpy as np
 #sys.path.append("..")
 
 from utils import MyUtils
+import pandas as pd
 
 
 
@@ -32,9 +33,50 @@ class PLA:
         
         if(self.degree > 1):
             Z = MyUtils.z_transform(X, degree=self.degree)
-        
+    
             
         ### BEGIN YOUR SOLUTION
+    
+        # ADDING BIAS FEATURE
+        # for s in range(0, len(X)):
+        #     X[s].insert(0, 1)
+        # X_DF = pd.DataFrame(X)
+        # print("X with bias feature\n",X_DF)
+
+
+        misclassifiedSamples = True
+        self.w = np.zeros((len(X[0]),1))
+        # print("w: ",self.w)
+        wT = self.w.T
+
+        if (pocket == True):        
+            while(misclassifiedSamples and epochs > 0):
+                misclassifiedSamples = False
+                for s in range(len(X)):
+                    assessment = wT.dot(X[s])
+                    if (assessment == 0 and y[s] == 0):
+                        print("wow")
+                    elif ((assessment > 0 and y[s] == -1) or (assessment < 0 and y[s] == 1)):
+                        # sample misclassified. move w line closer to x
+                        w = w + (y*X[s])
+                        misclassifiedSamples = True
+                epochs -= 1
+       
+        elif (pocket == False):
+           while(misclassifiedSamples):
+                misclassifiedSamples = False
+                for s in range(len(X)):
+                    assessment = wT.dot(X[s])
+                    if (assessment == 0 and y[s] == 0):
+                        print("wow")
+                    elif ((assessment > 0 and y[s] == -1) or (assessment < 0 and y[s] == 1)):
+                        # sample misclassified. move w line closer to x
+                        w = w + (y*X[s])
+                        misclassifiedSamples = True
+
+
+        print("\n\nending w:\n",self.w)
+    
 #         raise NotImplementedError()
         ### END YOUR SOLUTION
             

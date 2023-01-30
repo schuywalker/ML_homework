@@ -8,7 +8,7 @@ def plaMain():
 
     y = [1,1,1]
 
-    X = ex3
+    X = ex2
     myPLA = PLA(5)
     myPLA.fit(X,y,True,100)
 

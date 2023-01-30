@@ -94,7 +94,7 @@ class MyUtils:
                 else:
                     B.append(int(((i+numFeatures)/(numFeatures-1))+B[i-1]))
 
-        print("B: ",B)
+        # print("B: ",B)
         
         Z = X
         
@@ -105,14 +105,14 @@ class MyUtils:
         q = 0 # total size of all buckets before PREVIOUS bucket
         p = numFeatures # total size of all previous buckets
         g = numFeatures # index of the new column
-        print(L,q,p,g)
+        # print(L,q,p,g)
         
-        print("L:",L)
-        print("Z:",Z)
-        print("X:",X) 
+        # print("L:",L)
+        # print("Z:",Z)
+        # print("X:",X) 
         
         for degree_i in range(1,degree): # for each dimension elevation
-            print("Top of i run, iL ", degree_i)
+            # print("Top of i run, iL ", degree_i)
             
             for j in range(q,p): # for each element in previous bucket
        
@@ -123,8 +123,8 @@ class MyUtils:
                         temp.append(Z[ii][j]*X[ii][k])
 
                     for i in range(len(temp)):
-                        Z[i].append(temp[i])
-
+                        # Z[i].append(temp[i])
+                        np.append(Z,temp[i])
                     if (g > (len(L)-1)):
                         L.append(None)
                     L[g] = k
@@ -133,13 +133,14 @@ class MyUtils:
 
 
             q = p # new total size of all previous buckets
-            p = B[degree_i]
-            print("Bottom OF DIMENSION i LOOP RUN:\ni: ", degree_i) 
-            Z_DF = pd.DataFrame(Z, columns=L)
-            print(Z_DF)
-            if (len(Z[0]) != B[i]):
-                print("ERROR: Z length is not equal to B[degree_i]")
-                print("degree_i: ",degree_i ," j: ", j," k: ",k, "g: ",g, "q: ",q, "p: ",p ) #, ", L[g]: ", L[g])
+            # p = B[degree_i]
+            p = len(Z[0])
+            # print("Bottom OF DIMENSION i LOOP RUN:\ni: ", degree_i) 
+            # Z_DF = pd.DataFrame(Z, columns=L)
+            # print(Z_DF)
+            # if (len(Z[0]) != B[degree_i]): # B[degree_i] or i ??
+            #     print("ERROR: Z length is not equal to B[degree_i]")
+            #     print("degree_i: ",degree_i ," j: ", j," k: ",k, "g: ",g, "q: ",q, "p: ",p ) #, ", L[g]: ", L[g])
         
         # print("\n\n",Z)
         return Z
