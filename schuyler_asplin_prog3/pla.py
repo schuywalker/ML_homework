@@ -61,7 +61,6 @@ class PLA:
                 wT = self.w.T
                 misclassifiedSamples = False
                 for s in range(len(X)):
-                    print(f"\n\nX[s].shape {np.shape(X[s])} .  X[s].shape {np.shape(wT)}    ")
                     assessment = np.sign(X[s] @ wT)
                     # print(f"s: {s}, assessment: {assessment}")
                     if ((assessment >= 0 and y[s][0] == -1) or (assessment < 0 and y[s][0] == 1)):
@@ -81,7 +80,6 @@ class PLA:
                 wT = self.w.T
                 misclassifiedSamples = False
                 for s in range(len(X)):
-                    print(f"\n\nX[s].shape {np.shape(X[s])} .  X[s].shape {np.shape(wT)}    ")
                     assessment = np.sign(wT @ X[s])
                     if ((assessment > 0 and y[s] == -1) or (assessment < 0 and y[s] == 1)):
                         # sample misclassified. move w line closer to x
@@ -120,7 +118,6 @@ class PLA:
             y: n x 1 vector
             return the number of misclassifed elements in X using self.w
         '''
-        # return 3
         
         if(self.degree > 1):
             X = MyUtils.z_transform(X, degree = self.degree)
@@ -141,8 +138,8 @@ class PLA:
         y_pred = y # just for skipping append. should start as []
         wT = self.w.T
         for s in range(len(X)):
-            X = np.asarray(X)
-            y_pred[s] = np.sign(wT @ X.T) # shouldn't it be X[s]? dimension sizes are wrong. 
+            # X = np.asarray(X)
+            y_pred[s] = np.sign(wT @ X) # shouldn't it be X[s]? dimension sizes are wrong. 
         
         differences = 0
         for result in range(len(y)):

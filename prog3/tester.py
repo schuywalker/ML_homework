@@ -108,6 +108,7 @@ def test_transforms():
     n = 3
     max_d = 3
     max_r = 5
+    # max_r = 3
     count = 0
     data = getExpectedResults()
     passed = np.full((max_d, max_r), False)
@@ -129,14 +130,20 @@ def test_transforms():
         return False
 
 def test_single_transform(n,d,r,data, data_idx):
+    print(f"\nn {n},d {d},r {r}") #,data \n\n{data[data_idx]}, \ndata_idx {data_idx}   
     X = generateX(n,d)
+    # print(f"\n\nX\n{X}")
     Z = utils.MyUtils.z_transform(X,degree=r)
+    # print(f"Z\n{Z}")
     num_columns = combinations(r,d)
+    # print(f"numCol: {num_columns}")
     if num_columns != Z.shape[1]:
         print(f"An incorrect number of columns were generated for degree {r} and {d} feature(s).\nExpected: {num_columns}\nFound: {Z.shape[1]}")
         return False
+    else:
+        print(f"\ntransform worked for: \n{X}\nto:\n{Z}")
     if not np.all(data[data_idx] == Z):
-        print(f"Mismatched Z matrices for degree {r} and {d} feature(s).\nExpected:\n{data[data_idx]}\nFound:\n{Z}")
+        print(f"\nMismatched Z matrices for degree {r} and {d} feature(s).\n{X}\nto:\nExpected:\n{data[data_idx]}\nFound:\n{Z}")
         return False
     return True
 
