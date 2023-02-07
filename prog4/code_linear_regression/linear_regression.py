@@ -14,13 +14,17 @@ import math
 import sys
 sys.path.append("..")
 
+# from misc.utils import MyUtils
+# import utils as MyUtils
+# misc.utils import MyUtils
 from misc.utils import MyUtils
-
 
 class LinearRegression:
     def __init__(self):
         self.w = None   # The (d+1) x 1 numpy array weight matrix
         self.degree = 1
+
+        # self.MSE only for testing purposes?? DELETE
         
         
     def fit(self, X, y, CF = True, lam = 0, eta = 0.01, epochs = 1000, degree = 1):
@@ -54,10 +58,16 @@ class LinearRegression:
             y: n x 1 matrix of labels. Each element is the label of each sample. 
         '''
 
+
+        
+
         ## Delete the `pass` statement below.
         ## Enter your code here that implements the closed-form method for
         ## linear regression 
-        pass
+        print(X)
+        inv = np.linalg.pinv(X.T@X)
+        w_star = inv@(X.T*y)
+        return w_star
                 
 
 
@@ -70,11 +80,17 @@ class LinearRegression:
             X: n x d matrix, n samples, each has d features, excluding the bias feature
             y: n x 1 matrix of labels. Each element is the label of each sample. 
         '''
+        np.random.seed()
 
-        ## Delete the `pass` statement below.
+        n, d = X.shape()
+
+        # self.w = np.array([[0],]*(d+1))
+        self.w = np.random.rand(d+1,1) # random number from [0,1]
+        self.w = ((self.w * 2) - 1)/math.sqrt(d) # random numbers from [-1,sqrt(d),1/sqrt(d)]
         
         ## Enter your code here that implements the gradient descent based method
         ## for linear regression 
+
 
         pass
 
@@ -87,6 +103,7 @@ class LinearRegression:
             return:
                 n x 1 matrix, each matrix element is the regression value of each sample
         '''
+        X = MyUtils.z_transform(X, self.degree)
 
         ## Delete the `pass` statement below.
         
@@ -118,3 +135,16 @@ class LinearRegression:
         pass
 
 
+
+
+###
+'''
+he does add bias feature (in cf2)
+in every epoch he does the red text code. self.w = a @ self.w + b
+the black lines claculate the read line (slides)
+self.MSE
+
+predict, z-thransform. x = np.insert(... axis=1)
+then return the red text
+'''
+###
