@@ -24,9 +24,12 @@ class LinearRegression:
         self.w = None   # The (d+1) x 1 numpy array weight matrix
         self.degree = 1
 
-        # self.MSE only for testing purposes?? DELETE
+        # self.MSE only for testing purposes?? just if you want to save the results into here if you want to graph MSEs (should trend down).
         
-        
+    '''
+    INIT w to zeros!!
+    '''
+
     def fit(self, X, y, CF = True, lam = 0, eta = 0.01, epochs = 1000, degree = 1):
         ''' Find the fitting weight vector and save it in self.w. 
             
@@ -58,18 +61,39 @@ class LinearRegression:
             y: n x 1 matrix of labels. Each element is the label of each sample. 
         '''
 
-
-        
-
         ## Delete the `pass` statement below.
         ## Enter your code here that implements the closed-form method for
         ## linear regression 
+
+        
+
+        # Goal: 'create' X and y, then compute w* = ((X.T*X)^-1)X.T*y
+        
+        n, d = X.shape()
+        # X = MyUtils.z_transform(X,self.degree) SHOULDNT NEED, IN FIT
+        # d = number of non-bias features in each sample
+        # n = number of samples in training set
+        # y = labels
+        # self.w = np.random.rand(d+1,1)
+        self.w = np.zeros(d+1) # change data type here if needed
+        # w = a weight vector of size d+1. w = [w0...wd].T
+
         print(X)
         inv = np.linalg.pinv(X.T@X)
-        w_star = inv@(X.T*y)
-        return w_star
-                
+        # w_star = inv@(X.T@y)
+        # self.w = w_star
+        # return w_star
 
+        self.w = np.linalg.pinv((X@X.T)@(X.T@y))        
+
+        print(self.w)
+
+        '''
+        pinv(X.T@X)@(X.T@y) <- can all be one line
+                    ^^^^^^^ parens make it slightly more optimal.
+        d = X.shape[1]
+        
+        '''
 
     
     
@@ -80,19 +104,22 @@ class LinearRegression:
             X: n x d matrix, n samples, each has d features, excluding the bias feature
             y: n x 1 matrix of labels. Each element is the label of each sample. 
         '''
-        np.random.seed()
+        # np.random.seed()
 
         n, d = X.shape()
-
+        I = np.identity(d+1) # - do red code, then while epochs > 0, w = w - nDelE(w)
+        print(f"I:\n{I}")
+        XTX = X.T@X
+        term1 = (I - ((2*eta)/n)@XTX)@self.w
+        term2 = ((2*eta)/n)@(X.T@y)
         # self.w = np.array([[0],]*(d+1))
+
         self.w = np.random.rand(d+1,1) # random number from [0,1]
         self.w = ((self.w * 2) - 1)/math.sqrt(d) # random numbers from [-1,sqrt(d),1/sqrt(d)]
         
         ## Enter your code here that implements the gradient descent based method
         ## for linear regression 
 
-
-        pass
 
   
 
@@ -112,6 +139,11 @@ class LinearRegression:
         ## space where you trained your model. Make sure X has been normalized via the same
         ## normalization used by the training process. 
 
+        '''
+        allows for multiple samples to be submitted. x= transform, insert, return X@self.w 
+        X = np.insert(X, 0, 1, axis =1)
+        '''
+
         pass
         
 
@@ -126,7 +158,13 @@ class LinearRegression:
         '''
 
         ## Delete the `pass` statement below.
-        
+        '''
+        gimme predicted price with real price, get MSE (sum of differences squared) / N or something
+        if necessary, transform to Z-space first. use vector calculations, dont use for/while loop. itll be too slow.
+
+        temp = X @ w -y
+        get sum of all temps (all elements), square them, then divide by ..N?
+        '''
         ## Enter your code here that calculates the MSE between your predicted
         ## label vector and the given label vector y, for the sample set saved in matraix X
         ## Make sure your predication is calculated at the same Z space where you trained your model. 
