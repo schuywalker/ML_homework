@@ -17,7 +17,8 @@ sys.path.append("..")
 # from misc.utils import MyUtils
 # import utils as MyUtils
 # misc.utils import MyUtils
-from misc.utils import MyUtils
+
+# from misc.utils import MyUtils
 
 class LinearRegression:
     def __init__(self):
@@ -112,19 +113,20 @@ class LinearRegression:
         X = np.insert(X, 0, 1, axis =1) # add bias feature
         XTX = X.T@X
         print(f"XTX shape:\n{np.shape(XTX)}")
-
-        term1 = (I - ((2*eta)/n)@XTX)@self.w
-        term2 = ((2*eta)/n)@(X.T@y)
-        # self.w = np.array([[0],]*(d+1))
-
-        self.w = np.random.rand(d+1,1) # random number from [0,1]
-        self.w = ((self.w * 2) - 1)/math.sqrt(d) # random numbers from [-1,sqrt(d),1/sqrt(d)]
         
-        ## Enter your code here that implements the gradient descent based method
-        ## for linear regression 
+        if self.w == None:
+            self.w = np.zeros(d+1)
+        
+        # how he did w init: self.w = np.random.rand(d+1,1) # random number from [0,1]
+        # self.w = ((self.w * 2) - 1)/math.sqrt(d) # random numbers from [-1,sqrt(d),1/sqrt(d)]        
+        
+        term1 = (I - ((2*eta)/n)*XTX)@self.w
+        term2 = ((2*eta)/n)*(X.T@y)
+        # self.w = np.array([[0],]*(d+1))
+        for e in range(0,epochs):
+            self.w = term1 + term2
+            print(f"self.w\n{self.w}\n")
 
-
-  
 
     
     def predict(self, X):
