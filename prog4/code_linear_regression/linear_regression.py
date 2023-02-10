@@ -105,10 +105,14 @@ class LinearRegression:
         '''
         # np.random.seed()
 
-        n, d = X.shape()
+        n, d = np.shape(X)
         I = np.identity(d+1) # - do red code, then while epochs > 0, w = w - nDelE(w)
         print(f"I:\n{I}")
+        print(f"I shape:\n{np.shape(I)}")
+        X = np.insert(X, 0, 1, axis =1) # add bias feature
         XTX = X.T@X
+        print(f"XTX shape:\n{np.shape(XTX)}")
+
         term1 = (I - ((2*eta)/n)@XTX)@self.w
         term2 = ((2*eta)/n)@(X.T@y)
         # self.w = np.array([[0],]*(d+1))
