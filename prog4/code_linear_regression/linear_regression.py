@@ -44,7 +44,8 @@ class LinearRegression:
         '''
         self.degree = degree
         X = MyUtils.z_transform(X, degree = self.degree)
-        
+        # 
+
         if CF:
             self._fit_cf(X, y, lam)
         else: 
@@ -60,33 +61,31 @@ class LinearRegression:
             X: n x d matrix, n samples, each has d features, excluding the bias feature
             y: n x 1 matrix of labels. Each element is the label of each sample. 
         '''
-
-        ## Delete the `pass` statement below.
-        ## Enter your code here that implements the closed-form method for
-        ## linear regression 
-
-        
-
+        ## Enter your code here that implements the closed-form method for linear regression 
         # Goal: 'create' X and y, then compute w* = ((X.T*X)^-1)X.T*y
         
-        n, d = X.shape()
+        n, d = np.shape(X)
+        
         # X = MyUtils.z_transform(X,self.degree) SHOULDNT NEED, IN FIT
         # d = number of non-bias features in each sample
-        # n = number of samples in training set
+        # n = number of non-bias samples in training set
         # y = labels
+        X = np.insert(X, 0, 1, axis =1) # add bias feature
+        print(f"X after bias feature:\n{X}")
         # self.w = np.random.rand(d+1,1)
-        self.w = np.zeros(d+1) # change data type here if needed
+        if self.w == None:
+            self.w = np.zeros(d+1) # change data type here if needed
         # w = a weight vector of size d+1. w = [w0...wd].T
 
-        print(X)
-        inv = np.linalg.pinv(X.T@X)
-        # w_star = inv@(X.T@y)
-        # self.w = w_star
-        # return w_star
+        print(f"X shape:\n{np.shape(X)}")
+        print(f"X.T shape:\n{np.shape(X.T)}")
+        print(f"Y shape:\n{np.shape(y)}")
 
-        self.w = np.linalg.pinv((X@X.T)@(X.T@y))        
-
+        w_star = np.linalg.pinv((X@X.T)@(X.T@y))        
+        self.w = w_star
         print(self.w)
+        print(np.shape(self.w))
+
 
         '''
         pinv(X.T@X)@(X.T@y) <- can all be one line
