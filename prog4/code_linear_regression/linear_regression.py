@@ -12,13 +12,15 @@
 import numpy as np
 import math
 import sys
+
+# from utils import MyUtils
 sys.path.append("..")
 
 # from misc.utils import MyUtils
 # import utils as MyUtils
 # misc.utils import MyUtils
 
-# from misc.utils import MyUtils
+from misc.utils import MyUtils
 
 class LinearRegression:
     def __init__(self):
@@ -114,17 +116,20 @@ class LinearRegression:
         XTX = X.T@X
         print(f"XTX shape:\n{np.shape(XTX)}")
         
-        if self.w == None:
-            self.w = np.zeros(d+1)
+        # if self.w == None:
+        #     self.w = np.zeros(d+1)
         
-        # how he did w init: self.w = np.random.rand(d+1,1) # random number from [0,1]
+        # how he did w init: 
+        # self.w = np.random.rand(d+1,1) # random number from [0,1]
         # self.w = ((self.w * 2) - 1)/math.sqrt(d) # random numbers from [-1,sqrt(d),1/sqrt(d)]        
-        
-        term1 = (I - ((2*eta)/n)*XTX)@self.w
+        # or...
+        self.w = np.array([[0],]*(d+1))
+
+        term1 = (I - ((2*eta)/n)*XTX)
         term2 = ((2*eta)/n)*(X.T@y)
-        # self.w = np.array([[0],]*(d+1))
+        
         for e in range(0,epochs):
-            self.w = term1 + term2
+            self.w = (term1@self.w) + term2
             print(f"self.w\n{self.w}\n")
 
 
@@ -135,10 +140,6 @@ class LinearRegression:
             return:
                 n x 1 matrix, each matrix element is the regression value of each sample
         '''
-        X = MyUtils.z_transform(X, self.degree)
-
-        ## Delete the `pass` statement below.
-        
         ## Enter your code here that produces the label vector for the given samples saved
         ## in the matrix X. Make sure your predication is calculated at the same Z
         ## space where you trained your model. Make sure X has been normalized via the same
@@ -149,8 +150,9 @@ class LinearRegression:
         X = np.insert(X, 0, 1, axis =1)
         '''
 
-        pass
-        
+        X = MyUtils.z_transform(X, self.degree)
+        X = np.insert(X, 0, 1, axis =1)
+        return self.w.T@X # slides are lower case x and w?
 
     
     
@@ -161,7 +163,13 @@ class LinearRegression:
             return: 
                 the MSE for this test set (X,y) using the trained model
         '''
+        sum = 0
+        for i in range(len(X)):
+            sum += (y*X[i])-y
 
+        MSE = math.sqrt(sum)
+        return MSE # E(w) ?
+    
         ## Delete the `pass` statement below.
         '''
         gimme predicted price with real price, get MSE (sum of differences squared) / N or something
