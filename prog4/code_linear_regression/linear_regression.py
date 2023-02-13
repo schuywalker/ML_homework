@@ -159,7 +159,7 @@ class LinearRegression:
         # sum = X @ self.w - y
         sum = 0
         for i in range(len(X)):
-            sum += (self.w[i]-y[i])**2
+            sum += (self.w[i+1]-y[i])**2
 
         self.MSE.append(math.sqrt(sum))
         
