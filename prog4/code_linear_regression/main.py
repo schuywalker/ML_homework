@@ -9,7 +9,10 @@ def main():
     # print(test_X1,"\n\n",test_y1)
     # print(np.shape(test_X1))
     # lr._fit_cf(test_X1, test_y1)
-    lr._fit_gd(test_X1,test_y1,epochs=5)
+    # lr._fit_gd(test_X1,test_y1,epochs=5)
+    lr.fit(test_X1,test_y1,True,0.001,0.01,10,3)
+
+
 
 if __name__ == '__main__':
     main()

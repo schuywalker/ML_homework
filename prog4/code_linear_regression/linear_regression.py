@@ -26,7 +26,9 @@ class LinearRegression:
     def __init__(self):
         self.w = None   # The (d+1) x 1 numpy array weight matrix
         self.degree = 1
-
+        # self.MSE_CF = []
+        # self.MSE_GD = []
+        self.MSE = []
         # self.MSE only for testing purposes?? just if you want to save the results into here if you want to graph MSEs (should trend down).
         
     '''
@@ -48,7 +50,7 @@ class LinearRegression:
         self.degree = degree
         X = MyUtils.z_transform(X, degree = self.degree)
         # 
-
+        X = np.insert(X, 0, 1, axis =1) # add bias feature
         if CF:
             self._fit_cf(X, y, lam)
         else: 
@@ -64,18 +66,12 @@ class LinearRegression:
             X: n x d matrix, n samples, each has d features, excluding the bias feature
             y: n x 1 matrix of labels. Each element is the label of each sample. 
         '''
-        ## Enter your code here that implements the closed-form method for linear regression 
-        # Goal: 'create' X and y, then compute w* = ((X.T*X)^-1)X.T*y
+        print("\nCLOSED FORM FIT\n")
         
-        n, d = np.shape(X)
+        d = len(X[0]) - 1 # d = number of non-bias features in each sample. AKA d = X.shape[1]
         
-        # X = MyUtils.z_transform(X,self.degree) SHOULDNT NEED, IN FIT
-        # d = number of non-bias features in each sample
-        # n = number of non-bias samples in training set
-        # y = labels
-        X = np.insert(X, 0, 1, axis =1) # add bias feature
-        print(f"X after bias feature:\n{X}")
-        # self.w = np.random.rand(d+1,1)
+        
+        
         if self.w == None:
             self.w = np.zeros(d+1) # change data type here if needed
         # w = a weight vector of size d+1. w = [w0...wd].T
@@ -84,21 +80,18 @@ class LinearRegression:
         print(f"X.T shape:\n{np.shape(X.T)}")
         print(f"Y shape:\n{np.shape(y)}")
 
-        w_star = np.linalg.pinv((X@X.T)@(X.T@y))        
-        self.w = w_star
-        print(self.w)
-        print(np.shape(self.w))
-
-
-        '''
-        pinv(X.T@X)@(X.T@y) <- can all be one line
-                    ^^^^^^^ parens make it slightly more optimal.
-        d = X.shape[1]
+        # # pre regularization (original subproject)
+        # more optimal to put second term inside inverse function than outside     
+        # self.w = w_star
         
-        '''
+        I = np.identity(d+1)
+        w_star = np.linalg.pinv(((X.T@X)+(lam*I))@(X.T@y)) # very different results is second term is outside pinv!!
+        self.w = w_star
+         
+        # print(f"self.w:\n{self.w}")
 
-    
-    
+
+
     def _fit_gd(self, X, y, lam = 0, eta = 0.01, epochs = 1000):
         ''' Compute the weight vector using the gradient desecent based method.
             Save the result in self.w
@@ -107,14 +100,15 @@ class LinearRegression:
             y: n x 1 matrix of labels. Each element is the label of each sample. 
         '''
         # np.random.seed()
+        print("\nGRADIENT DESCENT FIT\n")
 
         n, d = np.shape(X)
         I = np.identity(d+1) # - do red code, then while epochs > 0, w = w - nDelE(w)
-        print(f"I:\n{I}")
-        print(f"I shape:\n{np.shape(I)}")
-        X = np.insert(X, 0, 1, axis =1) # add bias feature
+        # print(f"I:\n{I}")
+        # print(f"I shape:\n{np.shape(I)}")
+        # X = np.insert(X, 0, 1, axis =1) # add bias feature
         XTX = X.T@X
-        print(f"XTX shape:\n{np.shape(XTX)}")
+        # print(f"XTX shape:\n{np.shape(XTX)}")
         
         # if self.w == None:
         #     self.w = np.zeros(d+1)
@@ -125,12 +119,12 @@ class LinearRegression:
         # or...
         self.w = np.array([[0],]*(d+1))
 
-        term1 = (I - ((2*eta)/n)*XTX)
+        term1 = (I - ((2*eta)/n)*(XTX+(lam*I))) #only difference from before is +(lam*I)
         term2 = ((2*eta)/n)*(X.T@y)
         
-        for e in range(0,epochs):
+        for e in range(0,epochs): # switch to vector ops for much better performance!!!!
             self.w = (term1@self.w) + term2
-            print(f"self.w\n{self.w}\n")
+            # print(f"self.w\n{self.w}\n")
 
 
     
@@ -152,9 +146,8 @@ class LinearRegression:
 
         X = MyUtils.z_transform(X, self.degree)
         X = np.insert(X, 0, 1, axis =1)
-        return self.w.T@X # slides are lower case x and w?
+        return X@self.w #slides say w.T but dimension sizes dont line up. check back here later
 
-    
     
     def error(self, X, y):
         ''' parameters:
@@ -163,14 +156,13 @@ class LinearRegression:
             return: 
                 the MSE for this test set (X,y) using the trained model
         '''
+        # sum = X @ self.w - y
         sum = 0
         for i in range(len(X)):
-            sum += (y*X[i])-y
+            sum += (self.w[i]-y[i])**2
 
-        MSE = math.sqrt(sum)
-        return MSE # E(w) ?
-    
-        ## Delete the `pass` statement below.
+        self.MSE.append(math.sqrt(sum))
+        
         '''
         gimme predicted price with real price, get MSE (sum of differences squared) / N or something
         if necessary, transform to Z-space first. use vector calculations, dont use for/while loop. itll be too slow.
@@ -183,7 +175,6 @@ class LinearRegression:
         ## Make sure your predication is calculated at the same Z space where you trained your model. 
         ## Make sure X has been normalized via the same normalization used by the training process. 
 
-        pass
 
 
 
