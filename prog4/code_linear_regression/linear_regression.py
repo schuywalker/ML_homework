@@ -49,8 +49,7 @@ class LinearRegression:
         '''
         self.degree = degree
         X = MyUtils.z_transform(X, degree = self.degree)
-        # 
-        X = np.insert(X, 0, 1, axis =1) # add bias feature
+        
         if CF:
             self._fit_cf(X, y, lam)
         else: 
@@ -66,26 +65,26 @@ class LinearRegression:
             X: n x d matrix, n samples, each has d features, excluding the bias feature
             y: n x 1 matrix of labels. Each element is the label of each sample. 
         '''
-        print("\nCLOSED FORM FIT\n")
-        
+        # print("\nCLOSED FORM FIT\n")
+        X = np.insert(X, 0, 1, axis =1) # add bias feature
         d = len(X[0]) - 1 # d = number of non-bias features in each sample. AKA d = X.shape[1]
-        
+        # n, d = np.shape(X)
         
         
         if self.w == None:
             self.w = np.zeros(d+1) # change data type here if needed
         # w = a weight vector of size d+1. w = [w0...wd].T
 
-        print(f"X shape:\n{np.shape(X)}")
-        print(f"X.T shape:\n{np.shape(X.T)}")
-        print(f"Y shape:\n{np.shape(y)}")
+        # print(f"X shape:\n{np.shape(X)}")
+        # print(f"X.T shape:\n{np.shape(X.T)}")
+        # print(f"Y shape:\n{np.shape(y)}")
 
         # # pre regularization (original subproject)
         # more optimal to put second term inside inverse function than outside     
         # self.w = w_star
         
         I = np.identity(d+1)
-        w_star = np.linalg.pinv(((X.T@X)+(lam*I))@(X.T@y)) # very different results is second term is outside pinv!!
+        w_star = np.linalg.pinv(((X.T@X)+(lam*I)))@(X.T@y) # very different results is second term is outside pinv!!
         self.w = w_star
          
         # print(f"self.w:\n{self.w}")
@@ -102,7 +101,10 @@ class LinearRegression:
         # np.random.seed()
         print("\nGRADIENT DESCENT FIT\n")
 
-        n, d = np.shape(X)
+        X = np.insert(X, 0, 1, axis =1)
+
+        n, d = np.shape(X)-1
+        
         I = np.identity(d+1) # - do red code, then while epochs > 0, w = w - nDelE(w)
         # print(f"I:\n{I}")
         # print(f"I shape:\n{np.shape(I)}")
@@ -156,19 +158,25 @@ class LinearRegression:
             return: 
                 the MSE for this test set (X,y) using the trained model
         '''
-        X = MyUtils.z_transform(X)
-        # INSERT
+        X = MyUtils.z_transform(X, self.degree)
+        # X = MyUtils.normalize_0_1(X)
         X = np.insert(X, 0, 1, axis =1)
         # sum = X @ self.w - y
         print(f"X {np.shape(X)}")
-        print(f"y {np.shape(y)}")
         print(f"w {np.shape(self.w)}")
-        sum = 0
-        sum = self.w @ X  - y
+        print(f"y {np.shape(y)}") 
+
+        sum = (X @ self.w) - y
+        sum = sum**2
+        # print("sum:\n",sum)
+        errorTotals = np.sum(sum)
+
+        # print("\n\nsum**2\n",sum**2)
         # for i in range(len(X)):
         #     sum += (self.w[i+1]-y[i])**2
-
-        self.MSE.append(math.sqrt(sum))
+        mse = ((1/len(X))/errorTotals)
+        self.MSE.append(mse)
+        return mse
         
         # use .dot(sum)
         # X @ w is y* y hat etc.
