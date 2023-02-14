@@ -156,12 +156,23 @@ class LinearRegression:
             return: 
                 the MSE for this test set (X,y) using the trained model
         '''
+        X = MyUtils.z_transform(X)
+        # INSERT
+        X = np.insert(X, 0, 1, axis =1)
         # sum = X @ self.w - y
+        print(f"X {np.shape(X)}")
+        print(f"y {np.shape(y)}")
+        print(f"w {np.shape(self.w)}")
         sum = 0
-        for i in range(len(X)):
-            sum += (self.w[i+1]-y[i])**2
+        sum = self.w @ X  - y
+        # for i in range(len(X)):
+        #     sum += (self.w[i+1]-y[i])**2
 
         self.MSE.append(math.sqrt(sum))
+        
+        # use .dot(sum)
+        # X @ w is y* y hat etc.
+
         
         '''
         gimme predicted price with real price, get MSE (sum of differences squared) / N or something
