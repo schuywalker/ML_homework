@@ -136,6 +136,7 @@ class LinearRegression:
             return: 
                 the MSE for this test set (X,y) using the trained model
         '''
+        # error() is essentially the a summed/normalized version of predict() - y
         X = MyUtils.z_transform(X, self.degree)
         X = np.insert(X, 0, 1, axis =1)
 
