@@ -1,8 +1,6 @@
 ########## >>>>>> Put your full name and 6-digit EWU ID here. 
-# Schuyler Asplin 
+# Schuyler Asplin 953387
 
-
-# DONT FORGET TO PUT EWU ID!!!!!!!!!!
 
 # Implementation of the linear regression with L2 regularization.
 # It supports the closed-form method and the gradient-desecent based method. 
