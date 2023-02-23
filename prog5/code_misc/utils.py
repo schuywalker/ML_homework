@@ -21,8 +21,84 @@ class MyUtils:
     
     
     ######### place here the code that you have submitted for the previous programming assignment
+        ######### place here the code that you have submitted for the previous programming assignment
+        
+        if degree == 1:
+            return X
+        
+        B = list() # BucketSizes
+        numFeatures = len(X[0]) # (d)
+        
+        # GET BUCKET SIZES (gets TOTAL number of features after each dimension elevation)
+        # if only 1 feature, each new bucket will be of size 1, 
+        # resulting in divide by zero error in the standard algorithm to get B
+        if (numFeatures == 1):
+            for deg in range(0,degree):
+                B.append(deg+1)
+        else:
+            for i in range(0,degree):
+                if (i < 1):
+                    B.append(int((i+numFeatures)/(numFeatures-1)))
+                else:
+                    B.append(int(((i+numFeatures)/(numFeatures-1))+B[i-1]))
+
+        # print("B: ",B)
+
+        # converting array to list. with more time, I'd rewrite my function to work with the input type from tester.py
+        if (type(X) != list):
+            X = X.tolist()
+        
+
+        Z = X
+        
+        dPrime = len(B)
+        L = list()
+        for ii in range(numFeatures):
+            L.append(ii)
+        q = 0 # total size of all buckets before PREVIOUS bucket
+        p = numFeatures # total size of all previous buckets
+        g = numFeatures # index of the new column
+        # print(L,q,p,g)
+
+        
+
+        # print("L:",L)
+        # print("Z:",Z)
+        # print("X:",X) 
+        for degree_i in range(1,degree): # for each dimension elevation
+            # print("Top of i run, iL ", degree_i)
+            
+            for j in range(q,p): # for each element in previous bucket
+       
+                for k in range(L[j],numFeatures):
+                    #  for each feature, starting at the last buckets corresponding largestFeatures list
+                    temp = []
+                    for ii in range(len(Z)):
+                        temp.append(Z[ii][j]*X[ii][k])
+
+                    for i in range(len(temp)):
+                        Z[i].append(temp[i])
+                        # np.append(Z[i],temp[i])
+                    if (g > (len(L)-1)):
+                        L.append(None)
+                    L[g] = k
+                    g += 1
+                    # print("i: ",i ," j: ", j," k: ",k, "g: ",g, ", L: ", L, ", L[g]: ", L[g])
 
 
+            q = p # new total size of all previous buckets
+            # p = B[degree_i]
+            p = len(Z[0])
+            # print("Bottom OF DIMENSION i LOOP RUN:\ni: ", degree_i) 
+            # Z_DF = pd.DataFrame(Z, columns=L)
+            # print(Z_DF)
+            # if (len(Z[0]) != B[degree_i]): # B[degree_i] or i ??
+            #     print("ERROR: Z length is not equal to B[degree_i]")
+            #     print("degree_i: ",degree_i ," j: ", j," k: ",k, "g: ",g, "q: ",q, "p: ",p ) #, ", L[g]: ", L[g])
+        
+        Z = np.asarray(Z)
+        # print("\n\nZ at end:\n",Z)
+        return Z
 
 
 

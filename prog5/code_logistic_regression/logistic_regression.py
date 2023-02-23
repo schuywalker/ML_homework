@@ -35,10 +35,29 @@ class LogisticRegression:
                 mini_batch_size: the size of each mini batch size, if SGD is True.  
                 degree: the degree of the Z space
         '''
+        self.degree = degree
+        # X = MyUtils.z_transform(X, self.degree) 
+        X = np.insert(X, 0, 1, axis=0)
+        y = np.insert(y, 0, 1, axis=0)
+        N, d = X.shape 
+        if (self.w == None): 
+            self.w = np.array([[0],]*(d))
+        
+        print(f"X.shape: {X.shape}")
+        print(f"self.w.shape: {self.w.shape}")
+        print(f"y.shape: {y.shape}")
 
-        # remove the pass statement and fill in the code. 
+        if SGD is False:
+            V_S = np.vectorize(LogisticRegression._sigmoid)
+            s = (X@self.w)
+            # s = y * s
+            s = s * y
+            print(f"s:{s}\n\n")
 
-        pass
+            print(f"V_S(s): {V_S(s)}\n\n")
+
+            self.w = self.w + ((eta/N)*(X.T@(y*V_S(s))))
+
 
     
     def predict(self, X):
@@ -47,9 +66,8 @@ class LogisticRegression:
             return: 
                 n x 1 matrix: each row is the probability of each sample being positive. 
         '''
-    
-        # remove the pass statement and fill in the code. 
-        pass
+        # theta(w.T@x) -- change for x to have a +1 label
+        return LogisticRegression._sigmoid(self.w.T@X)
     
     
     def error(self, X, y):
@@ -60,9 +78,40 @@ class LogisticRegression:
                 The number of misclassified samples. 
                 Every sample whose sigmoid value > 0.5 is given a +1 label; otherwise, a -1 label.
         '''
+        N,d = X.shape
+        print("X shape ",X.shape) # 280, 34
+        print("w shape ", self.w.shape) # 34, 1
+        print("y ",y.shape) # 280, 1
+        
+        
+        weightedSampleDotProduct = X@self.w # slides say w.T but I think w is transposed somehow already. shape = 280, 1
+        # print(f"\n\nTEST:\n@ symbol {weightedSampleDotProduct} \n\ndot method: {X.dot(self.w)}")
+        
+        # print(weightedSampleDotProduct.T.shape) (1,280)
+        # print(y)
+        negativeY = -1 * y
+        crossEntropyExponent = negativeY@weightedSampleDotProduct.T
+        print(f"in error method. type: {type(crossEntropyExponent)}, shape: {crossEntropyExponent.shape}")
+        
+        # # OR ??
+        # y_dot_w = (-1 * y)@self.w.T
+        # crossEntropyExponent = (y_dot_w@X.T)
+        
+        
+        
 
-        # remove the pass statement and fill in the code.         
-        pass
+
+        vectorized_e_to_arg = np.vectorize(math.exp)
+        
+        eToYWX = vectorized_e_to_arg(crossEntropyExponent) 
+        OnePlus_e_ToYWX = 1 + eToYWX # applies to every cell in matrix
+        
+        sumAsVector = vectorized_e_to_arg(OnePlus_e_ToYWX) # calling sum because we used dot product, which summed each element..
+        
+        print(f"sum: {sumAsVector}")
+        sumAsNumber = np.ma(sumAsVector)
+        print(f"sumAsNum: {sumAsNumber}")
+        return ((1/N)*sumAsNumber)
     
     
 
@@ -76,8 +125,6 @@ class LogisticRegression:
             
         # Hint: use the np.vectorize API
 
-        # remove the pass statement and fill in the code.         
-        pass
     
     
         
@@ -85,7 +132,4 @@ class LogisticRegression:
         ''' s: a real number
             return: the sigmoid function value of the input signal s
         '''
-
-        # remove the pass statement and fill in the code.         
-        pass
-    
+        return (1.0 / (1.0 + (math.exp(s * (-1.0)))))
