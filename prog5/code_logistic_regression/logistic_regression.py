@@ -88,12 +88,25 @@ class LogisticRegression:
         # print("y ",y.shape) # 280, 1
         
         weightedSampleDotProduct = X@self.w # slides say w.T but I think w is transposed somehow already. shape = 280, 1
-        # print("X@w:   ",weightedSampleDotProduct.T) (1,280)
-   
+        # print("X@w:   ",weightedSampleDotProduct.shape) #(1,280)
+
+        # getting same result for all GD. perhaps .multiply is applying y to every sample? investigate to find a 1-1 multiplier (or write with for loop).
+
+        ywx = np.multiply(y,weightedSampleDotProduct)
+        # print(f"ywx shape: {ywx.shape}\nywx: {ywx}")
+        results = LogisticRegression._v_sigmoid(ywx)
+        # print(results)
+
+        ret = 0
+        for x in range(0,len(results)):
+            if (results[x][0] < 0.5):
+                ret += 1
+        return ret
+        '''
         negativeY = -1 * y
         crossEntropyExponent = weightedSampleDotProduct.T@negativeY
         # print(f"in error method. type: {type(crossEntropyExponent)}, shape: {crossEntropyExponent.shape}")
-
+        
         vectorized_e_to_arg = np.vectorize(math.exp)
         eToYWX = vectorized_e_to_arg(crossEntropyExponent) 
         OnePlus_e_ToYWX = 1 + eToYWX # applies to every cell in matrix
@@ -105,7 +118,7 @@ class LogisticRegression:
         ret = sumDividedByN[0][0]
         print(f"ret: {ret}")
         return (ret)
-    
+        '''
     
 
     def _v_sigmoid(s):
