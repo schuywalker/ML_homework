@@ -36,9 +36,9 @@ class LogisticRegression:
                 degree: the degree of the Z space
         '''
         self.degree = degree
-        # X = MyUtils.z_transform(X, self.degree) 
+        X = MyUtils.z_transform(X, self.degree) 
         X = np.insert(X, 0, 1, axis=0)
-        y = np.insert(y, 0, 1, axis=0)
+        # y = np.insert(y, 0, 1, axis=0)
         # N, d
         # if X.ndim == 1:
         #     N = len(X)
@@ -67,11 +67,12 @@ class LogisticRegression:
                 n x 1 matrix: each row is the probability of each sample being positive. 
         '''
         # theta(w.T@x) -- probability of x to have a +1 label
-        print(f"X.shape: {X.shape}")
-        # X = np.insert(X, 0, 1, axis=0)
-        # print(f"X.shape after insert: {X.shape}")
-        print(f"self.w.T.shape: {self.w.T.shape}")
-        return LogisticRegression._v_sigmoid(X@self.w.T)
+        # print(f"X.shape: {X.shape}")
+        # # X = np.insert(X, 0, 1, axis=0)
+        # # print(f"X.shape after insert: {X.shape}")
+        # print(f"self.w.T.shape: {self.w.T.shape}")
+        X = MyUtils.z_transform(X)
+        return LogisticRegression._v_sigmoid(X@self.w)
     
     
     def error(self, X, y):
