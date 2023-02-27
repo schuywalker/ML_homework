@@ -38,30 +38,20 @@ class LogisticRegression:
         self.degree = degree
         X = MyUtils.z_transform(X, self.degree) 
         X = np.insert(X, 0, 1, axis=1)
-        # y = np.insert(y, 0, 1, axis=1) # shouldnt need this but do??
-        # N, d
-        # if X.ndim == 1:
-        #     N = len(X)
-        #     d = 1 ## assuming we wont ever get a 1-sample, multi-feature X array
-        # else:
-        #     N, d = X.shape 
         N, d = X.shape 
         self.w = np.array([[0],]*(d))
-        
-        # print(f"X.shape: {X.shape}")
-        # print(f"self.w.shape: {self.w.shape}")
-        # print(f"y.shape: {y.shape}")
 
         if SGD is False:
-            s = y*(X@self.w)
-            # print(s)
-            # self.w = ((1-((2*lam*eta)/N))*self.w) + ((eta/N)*(X.T@(y*LogisticRegression._v_sigmoid(s*(-1.0)))))
-            term1 = (1-((2*lam*eta)/N))*self.w
-            y_sig_s = y * LogisticRegression._v_sigmoid(s*(-1.0))
-            # print(y_sig_s)
-            term2 = (eta/N)*(X.T@(y_sig_s))
-            self.w = term1 + term2
-            print(self.w)
+            for i in range(iterations):
+                s = y*(X@self.w)
+                
+                
+                # self.w = ((1-((2*lam*eta)/N))*self.w) + ((eta/N)*(X.T@(y*LogisticRegression._v_sigmoid(s*(-1.0))))) # non-regularization
+                term1 = (1.0-((2.0*lam*eta)/N))*self.w
+                # print(y_sig_s)
+                term2 = (eta/N)*(X.T@(y * LogisticRegression._v_sigmoid((s * -1.0))))
+                self.w = term1 + term2
+                # print("w: ",self.w[:5])
 
     
     def predict(self, X):
@@ -70,14 +60,6 @@ class LogisticRegression:
             return: 
                 n x 1 matrix: each row is the probability of each sample being positive. 
         '''
-        # theta(w.T@x) -- probability of x to have a +1 label
-        # print(f"X.shape: {X.shape}")
-        # # X = np.insert(X, 0, 1, axis=1)
-        # # print(f"X.shape after insert: {X.shape}")
-        # print(f"self.w.T.shape: {self.w.T.shape}")
-        
-        
-        # X = MyUtils.z_transform(X)
         return LogisticRegression._v_sigmoid(X@self.w)
     
     
@@ -92,39 +74,21 @@ class LogisticRegression:
         N,d = X.shape
         X = MyUtils.z_transform(X, self.degree) 
         X = np.insert(X, 0, 1, axis=1)
-
-        # print("X shape ",X.shape) # 280, 34
-        # print("w shape ", self.w.shape) # 34, 1
-        # print("y ",y.shape) # 280, 1
-
-        # print("HERE w shape ",self.w.shape)
-        predictions = X@self.w # slides say w.T but I think w is transposed somehow already. shape = 280, 1
-        # print("\n\nX@w\n",predictions)
-        # predictions -= 0.5
-        print("predictions: ",predictions[:10])
-        # print(y)
         
-        # pred_signs = np.sign(predictions)
-        # pred_signs = np.sign(LogisticRegression._v_sigmoid(X))
-        # print(pred_signs[:10])
-        number_of_errors = 0
-        # print(f"pred_signs shape: {pred_signs.shape} y shape: {y.shape}")
-        for i in range(len(predictions)):
-            # print(f"pred: {np.sign(predictions[i][0])} y: {y[i][0]}")
-            if (np.sign(predictions[i][0]) != y[i][0]):
-                number_of_errors += 1
+
+        predictions = np.dot(X,self.w)
+        # prediction_signs = np.sign(predictions)
+        # print("predictions: ",predictions[:10])
+        predictions = predictions - 0.1 # treating 0s as -1. 0's and -0's can throw this off
+        predictions = np.sign(predictions)
+        number_of_errors = np.sum(predictions != y)
+
+        # for i in range(len(predictions)):
+        #     # print(f"pred: {np.sign(predictions[i][0])} y: {y[i][0]}")
+        #     if (np.sign(predictions[i]) != y[i]):
+        #         number_of_errors += 1
 
         return number_of_errors
-        # ywx = np.multiply(y,predictions)
-        # # print(f"ywx shape: {ywx.shape}\nywx: {ywx}")
-        # results = LogisticRegression._v_sigmoid(ywx)
-        # # print(results)
-
-        # # ret = 0
-        # # for x in range(0,len(results)):
-        # #     if (results[x][0] < 0.5):
-        # #         ret += 1
-        # # return ret
         '''
         negativeY = -1 * y
         crossEntropyExponent = weightedSampleDotProduct.T@negativeY
