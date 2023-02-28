@@ -52,6 +52,24 @@ class LogisticRegression:
                 term2 = (eta/N)*(X.T@(y * LogisticRegression._v_sigmoid((s * -1.0))))
                 self.w = term1 + term2
                 # print("w: ",self.w[:5])
+        
+        else: # SGD is true
+
+            iter_before_looping = len(X) % mini_batch_size
+
+            for i in range(iterations):
+                
+                runLength = (mini_batch_size)
+                if ((((i+1)%iter_before_looping)*mini_batch_size) > len(X)):
+                    runLength = math.remainder(X,mini_batch_size)
+                start = mini_batch_size*i
+                end = start + runLength
+                sPrime = y[start,end] * (X[start,end]@self.w)
+                N_Prime = runLength
+                
+                term1 = (eta/N_Prime)*(((y[start,end])*LogisticRegression._v_sigmoid(-1.0 * sPrime)).T @ X[start,end]).T
+                term2 = (1 - ((2*lam*eta)/N_Prime))*self.w
+                self.w = term1 + term2
 
     
     def predict(self, X):
