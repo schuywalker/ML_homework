@@ -60,29 +60,45 @@ class LogisticRegression:
             iter_before_looping = math.ceil(float(len(X) )/ float(mini_batch_size))
             print(iter_before_looping)
 
+            defaultRunLength = (int)(mini_batch_size)
+            remainderRunLength = math.remainder(len(X),mini_batch_size)
+            finalInLoopSignal = iter_before_looping % (iter_before_looping - 1)
+            print(f"defaultRunLength: {defaultRunLength} remainderRunLength: {remainderRunLength} finalInLoopSignal: {finalInLoopSignal}")
+
 
             for i in range(0,iterations):
+                print(f"\niteration: {i}")
                 
-                runLength = (mini_batch_size) # default
-                if ((((i+1)%iter_before_looping)*mini_batch_size) > len(X)):
-                    runLength = math.remainder(X,mini_batch_size)
+                if (remainderRunLength == 0):
+                    localRunLength = defaultRunLength
+                else:
+                    localRunLength = remainderRunLength if ((i%iter_before_looping) == finalInLoopSignal) else defaultRunLength
                 start = (mini_batch_size*i)%len(X)
                 
-                N_Prime = runLength
+    
+                N_Prime = localRunLength
 
+         
                 print(f"start: {start}")
-                end = (start + runLength)%len(X)
-                if (end > len(X)):
+                end = (start + localRunLength) # % len(X) ???
+
+                if (end > len(X)):#???
                     break
+
                 print(f"end: {end}")
                 print(f"y: {len(y)}  X: {len(X)}")
-                sPrime = (y[start:end] * (X[start:end]@self.w)) if (i <= len(X)) else (y[(start%len(X)):(end % len(X))] * (X[(start%len(X)):(end % len(X))]@self.w)) 
+                y_prime = y[start:end] if (i%len(X) < len(X) and i != 559) else y[(start%len(X)):(end % len(X))] # lol annoying to fix. try simpler design with second for loop.
+                X_prime = X[start:end] if (i%len(X) < len(X)) else X[(start%len(X)):(end % len(X))]
+                # sPrime = (y[start:end] * (X[start:end]@self.w)) if (i <= len(X)) else (y[(start%len(X)):(end % len(X))] * (X[(start%len(X)):(end % len(X))]@self.w)) 
+                print(f"y_prime: {y_prime.shape}  X_prime: {X_prime.shape}")
+                sPrime = y_prime * (X_prime@self.w)
                 print(f"sPrime: {sPrime}\n")
                 
                 
                 term1 = (eta/N_Prime)*(((y[start:end])*LogisticRegression._v_sigmoid(-1.0 * sPrime)).T @ X[start:end]).T
                 term2 = (1 - ((2*lam*eta)/N_Prime))*self.w
                 self.w = term1 + term2
+                print(f"w: {self.w[:5]}\n")
 
     
     def predict(self, X):
