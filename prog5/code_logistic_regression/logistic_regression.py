@@ -54,20 +54,33 @@ class LogisticRegression:
                 # print("w: ",self.w[:5])
         
         else: # SGD is true
+            print(f"mini batch {mini_batch_size}")
+            print(f"number of Samples X {len(X)}")
+            print(f"iterations: {iterations}")
+            iter_before_looping = math.ceil(float(len(X) )/ float(mini_batch_size))
+            print(iter_before_looping)
 
-            iter_before_looping = len(X) % mini_batch_size
 
-            for i in range(iterations):
+            for i in range(0,iterations):
                 
-                runLength = (mini_batch_size)
+                runLength = (mini_batch_size) # default
                 if ((((i+1)%iter_before_looping)*mini_batch_size) > len(X)):
                     runLength = math.remainder(X,mini_batch_size)
-                start = mini_batch_size*i
-                end = start + runLength
-                sPrime = y[start,end] * (X[start,end]@self.w)
-                N_Prime = runLength
+                start = (mini_batch_size*i)%len(X)
                 
-                term1 = (eta/N_Prime)*(((y[start,end])*LogisticRegression._v_sigmoid(-1.0 * sPrime)).T @ X[start,end]).T
+                N_Prime = runLength
+
+                print(f"start: {start}")
+                end = (start + runLength)%len(X)
+                if (end > len(X)):
+                    break
+                print(f"end: {end}")
+                print(f"y: {len(y)}  X: {len(X)}")
+                sPrime = (y[start:end] * (X[start:end]@self.w)) if (i < len(X)) else (y[((start)%len(X)):(end % len(X))] * (X[((start)%len(X)):(end % len(X))]@self.w)) 
+                print(f"sPrime: {sPrime}\n")
+                
+                
+                term1 = (eta/N_Prime)*(((y[start:end])*LogisticRegression._v_sigmoid(-1.0 * sPrime)).T @ X[start:end]).T
                 term2 = (1 - ((2*lam*eta)/N_Prime))*self.w
                 self.w = term1 + term2
 
