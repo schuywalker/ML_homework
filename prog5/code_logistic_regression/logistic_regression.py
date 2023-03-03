@@ -76,7 +76,7 @@ class LogisticRegression:
                     break
                 print(f"end: {end}")
                 print(f"y: {len(y)}  X: {len(X)}")
-                sPrime = (y[start:end] * (X[start:end]@self.w)) if (i < len(X)) else (y[((start)%len(X)):(end % len(X))] * (X[((start)%len(X)):(end % len(X))]@self.w)) 
+                sPrime = (y[start:end] * (X[start:end]@self.w)) if (i <= len(X)) else (y[(start%len(X)):(end % len(X))] * (X[(start%len(X)):(end % len(X))]@self.w)) 
                 print(f"sPrime: {sPrime}\n")
                 
                 
