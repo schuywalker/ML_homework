@@ -54,69 +54,99 @@ class LogisticRegression:
                 # print("w: ",self.w[:5])
         
         else: # SGD is true
-            print(f"mini batch {mini_batch_size}")
-            print(f"number of Samples X {len(X)}")
-            print(f"iterations: {iterations}")
+            # print(f"mini batch {mini_batch_size}")
+            # print(f"number of Samples X {len(X)}")
+            # print(f"iterations: {iterations}")
             batches_per_loop = math.ceil(float(len(X) )/ float(mini_batch_size))
-            print(batches_per_loop)
+            # print(batches_per_loop)
 
             # defaultRunLength = (int)(mini_batch_size) delete
-            remainderRunLength = math.remainder(len(X),mini_batch_size)
-            if (remainderRunLength == 0):
-                remainderRunLength = mini_batch_size
-            finalInLoopSignal = batches_per_loop % (batches_per_loop - 1)
-            print(f"remainderRunLength: {remainderRunLength} finalInLoopSignal: {finalInLoopSignal}")
+            
 
-
-            for i in range(0,math.ceil(iterations/batches_per_loop)):
+            if (len(X) % mini_batch_size != 0):
                 
+                remainderRunLength = math.remainder(len(X),mini_batch_size)
+                finalInLoopSignal = max(1, (batches_per_loop % (batches_per_loop - 1))) # need max to avoid divide by zero if mbs == len(X)
+                # print(f"remainderRunLength: {remainderRunLength} finalInLoopSignal: {finalInLoopSignal}")
                 
-                for j in range(0,batches_per_loop):
-                    print(f"\ni: {i} j: {j}")
-                    # CHECK FOR EARLY STOP
-                    #
-                    if ((i * batches_per_loop) + j > iterations): # may occur on last i
-                        print(f"early stop from iterations at i: {i} j: {j}")
-                        break
-                    if ((i * batches_per_loop) + j > len(X)): # may occur whenever i * batch_per_loop isn't evenly divisible by by sample size: len(X) 
-                        print(f"early stop from batches at i: {i} j: {j}")
-                        break
-
-                    if (j == (batches_per_loop-1)): # and remainderRunLength > 0)... handled outside of loop for performance
-                        localRunLength = int(remainderRunLength)
-                    else:
-                        localRunLength = mini_batch_size
+                for i in range(0,math.ceil(iterations/batches_per_loop)):
                     
-                    N_Prime = localRunLength
+                    
+                    for j in range(0,batches_per_loop):
+                        # print(f"\ni: {i} j: {j}")
                         
+                        # CHECK FOR EARLY STOP
+                        if ((i * batches_per_loop) + j > iterations): # may occur on last i
+                            print(f"early stop from iterations at i: {i} j: {j}")
+                            break
+                        if ((i * batches_per_loop) + j > len(X)): # may occur whenever i * batch_per_loop isn't evenly divisible by by sample size: len(X) 
+                            print(f"early stop from batches at i: {i} j: {j}")
+                            break
+
+                        if (j == (batches_per_loop-1)): # and remainderRunLength > 0)... handled outside of loop for performance
+                            localRunLength = int(remainderRunLength)
+                        else:
+                            localRunLength = mini_batch_size
+                        
+                        N_Prime = localRunLength
+                            
+                        
+                        # start = (mini_batch_size*i)%len(X)
+                        start = ((i*batches_per_loop) + j) % len(X)
+                        # print(f"start: {start}")
+                        end = (start + localRunLength) # % len(X) ???
+
+                        assert end <= len(X), "in IF: end is greater than len(X)"
+
+
+                        # print(f"end: {end}")
+                        # print(f"y: {len(y)}  X: {len(X)}")
+
+                        
+                        y_prime = y[start:end] 
+                        X_prime = X[start:end] 
+                        
+                        # y_prime = y[start:end] if (i%len(X) < len(X) and i != 559) else y[(start%len(X)):(end % len(X))] # lol annoying to fix. try simpler design with second for loop.
+                        # X_prime = X[start:end] if (i%len(X) < len(X)) else X[(start%len(X)):(end % len(X))]
+                        # sPrime = (y[start:end] * (X[start:end]@self.w)) if (i <= len(X)) else (y[(start%len(X)):(end % len(X))] * (X[(start%len(X)):(end % len(X))]@self.w)) 
+                        # print(f"y_prime: {y_prime.shape}  X_prime: {X_prime.shape}")
+                        sPrime = y_prime * (X_prime@self.w)
+                        # print(f"sPrime: {sPrime}\n")
+                        
+                        
+                        term1 = (eta/N_Prime)*(((y[start:end])*LogisticRegression._v_sigmoid(-1.0 * sPrime)).T @ X[start:end]).T
+                        term2 = (1 - ((2*lam*eta)/N_Prime))*self.w
+                        self.w = term1 + term2
+                        # print(f"w: {self.w[:5]}\n")
+            
+            else:
+                # skips partial runs (i.e. remainder of (10,000/280)), so missing out of a tiny amount of training.
+                # should be significant in testing if iterations are sufficiently high but is a wishlist improvement
+                for i in range(0,int(iterations/mini_batch_size)): # cast won't truncate because we checked that len(X) % mini_batch_size == 0
                     
-                    # start = (mini_batch_size*i)%len(X)
-                    start = ((i*batches_per_loop) + j) % len(X)
-                    print(f"start: {start}")
-                    end = (start + localRunLength) # % len(X) ???
+                    N_Prime = mini_batch_size
+                    start = ((i*mini_batch_size)) % len(X)
+                    end = (start + mini_batch_size) # % len(X) ???
 
-                    assert end <= len(X), "end is greater than len(X)"
+                    assert end <= len(X), "in ELSE end is greater than len(X)"
 
-
-                    print(f"end: {end}")
-                    print(f"y: {len(y)}  X: {len(X)}")
-
+                    # print(f"start: {start} end: {end}")
+                    # print(f"y: {len(y)}  X: {len(X)}")
                     
                     y_prime = y[start:end] 
                     X_prime = X[start:end] 
+                    # print(f"y_prime: {y_prime.shape}  X_prime: {X_prime.shape}")
                     
-                    # y_prime = y[start:end] if (i%len(X) < len(X) and i != 559) else y[(start%len(X)):(end % len(X))] # lol annoying to fix. try simpler design with second for loop.
-                    # X_prime = X[start:end] if (i%len(X) < len(X)) else X[(start%len(X)):(end % len(X))]
-                    # sPrime = (y[start:end] * (X[start:end]@self.w)) if (i <= len(X)) else (y[(start%len(X)):(end % len(X))] * (X[(start%len(X)):(end % len(X))]@self.w)) 
-                    print(f"y_prime: {y_prime.shape}  X_prime: {X_prime.shape}")
+                    
                     sPrime = y_prime * (X_prime@self.w)
-                    print(f"sPrime: {sPrime}\n")
+                    # print(f"sPrime: {sPrime}\n")
                     
                     
                     term1 = (eta/N_Prime)*(((y[start:end])*LogisticRegression._v_sigmoid(-1.0 * sPrime)).T @ X[start:end]).T
                     term2 = (1 - ((2*lam*eta)/N_Prime))*self.w
                     self.w = term1 + term2
-                    print(f"w: {self.w[:5]}\n")
+                    # print(f"w: {self.w[:5]}\n")
+                
 
     
     def predict(self, X):
