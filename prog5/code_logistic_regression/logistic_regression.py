@@ -43,38 +43,24 @@ class LogisticRegression:
 
         if SGD is False:
             for i in range(iterations):
-                s = y*(X@self.w)
+                s = y*(np.dot(X,self.w))
                 
-                
-                # self.w = ((1-((2*lam*eta)/N))*self.w) + ((eta/N)*(X.T@(y*LogisticRegression._v_sigmoid(s*(-1.0))))) # non-regularization
                 term1 = (1.0-((2.0*lam*eta)/N))*self.w
-                # print(y_sig_s)
-                term2 = (eta/N)*(X.T@(y * LogisticRegression._v_sigmoid((s * -1.0))))
+                
+                term2 = (eta/N)*(np.dot(X.T,(y * LogisticRegression._v_sigmoid((s * -1.0)))))
                 self.w = term1 + term2
-                # print("w: ",self.w[:5])
+                
         
         else: # SGD is true
-            # print(f"mini batch {mini_batch_size}")
-            # print(f"number of Samples X {len(X)}")
-            # print(f"iterations: {iterations}")
             batches_per_loop = math.ceil(float(len(X) )/ float(mini_batch_size))
-            # print(batches_per_loop)
 
-            # defaultRunLength = (int)(mini_batch_size) delete
-            
 
             if (len(X) % mini_batch_size != 0):
-                
                 remainderRunLength = math.remainder(len(X),mini_batch_size)
                 finalInLoopSignal = max(1, (batches_per_loop % (batches_per_loop - 1))) # need max to avoid divide by zero if mbs == len(X)
-                # print(f"remainderRunLength: {remainderRunLength} finalInLoopSignal: {finalInLoopSignal}")
                 
                 for i in range(0,math.ceil(iterations/batches_per_loop)):
-                    
-                    
                     for j in range(0,batches_per_loop):
-                        # print(f"\ni: {i} j: {j}")
-                        
                         # CHECK FOR EARLY STOP
                         if ((i * batches_per_loop) + j > iterations): # may occur on last i
                             print(f"early stop from iterations at i: {i} j: {j}")
@@ -88,64 +74,39 @@ class LogisticRegression:
                         else:
                             localRunLength = mini_batch_size
                         
-                        N_Prime = localRunLength
-                            
-                        
-                        # start = (mini_batch_size*i)%len(X)
+                        # N_Prime = localRunLength
                         start = ((i*batches_per_loop) + j) % len(X)
                         # print(f"start: {start}")
                         end = (start + localRunLength) # % len(X) ???
-
                         assert end <= len(X), "in IF: end is greater than len(X)"
+                        sPrime = y[start:end] * (np.dot(X[start:end], self.w))
+                        N_Prime = X[start:end].shape[0]
+                        
+                        if (i > 10 and i < 13):
+                            print(f"i: {i} j: {j} start: {start} end: {end} len(X): {len(X)} localRunLength: {localRunLength} N_Prime: {N_Prime} sPrime: {sPrime.shape}")
 
-
-                        # print(f"end: {end}")
-                        # print(f"y: {len(y)}  X: {len(X)}")
-
-                        
-                        y_prime = y[start:end] 
-                        X_prime = X[start:end] 
-                        
-                        # y_prime = y[start:end] if (i%len(X) < len(X) and i != 559) else y[(start%len(X)):(end % len(X))] # lol annoying to fix. try simpler design with second for loop.
-                        # X_prime = X[start:end] if (i%len(X) < len(X)) else X[(start%len(X)):(end % len(X))]
-                        # sPrime = (y[start:end] * (X[start:end]@self.w)) if (i <= len(X)) else (y[(start%len(X)):(end % len(X))] * (X[(start%len(X)):(end % len(X))]@self.w)) 
-                        # print(f"y_prime: {y_prime.shape}  X_prime: {X_prime.shape}")
-                        sPrime = y_prime * (X_prime@self.w)
-                        # print(f"sPrime: {sPrime}\n")
-                        
-                        
-                        term1 = (eta/N_Prime)*(((y[start:end])*LogisticRegression._v_sigmoid(-1.0 * sPrime)).T @ X[start:end]).T
-                        term2 = (1 - ((2*lam*eta)/N_Prime))*self.w
+                        term1 = (1.0 - ((2.0*lam*eta)/N_Prime))*self.w
+                        term2 = (eta/N_Prime) * np.dot(X[start:end].T,(y[start:end] * LogisticRegression._v_sigmoid(-1.0 * sPrime)))
                         self.w = term1 + term2
-                        # print(f"w: {self.w[:5]}\n")
             
             else:
                 # skips partial runs (i.e. remainder of (10,000/280)), so missing out of a tiny amount of training.
                 # should be significant in testing if iterations are sufficiently high but is a wishlist improvement
-                for i in range(0,int(iterations/mini_batch_size)): # cast won't truncate because we checked that len(X) % mini_batch_size == 0
+                
+                for i in range(0,iterations): # cast won't truncate because we checked that len(X) % mini_batch_size == 0
                     
-                    N_Prime = mini_batch_size
+                    
                     start = ((i*mini_batch_size)) % len(X)
                     end = (start + mini_batch_size) # % len(X) ???
 
                     assert end <= len(X), "in ELSE end is greater than len(X)"
 
-                    # print(f"start: {start} end: {end}")
-                    # print(f"y: {len(y)}  X: {len(X)}")
-                    
-                    y_prime = y[start:end] 
-                    X_prime = X[start:end] 
-                    # print(f"y_prime: {y_prime.shape}  X_prime: {X_prime.shape}")
-                    
-                    
-                    sPrime = y_prime * (X_prime@self.w)
-                    # print(f"sPrime: {sPrime}\n")
-                    
-                    
-                    term1 = (eta/N_Prime)*(((y[start:end])*LogisticRegression._v_sigmoid(-1.0 * sPrime)).T @ X[start:end]).T
-                    term2 = (1 - ((2*lam*eta)/N_Prime))*self.w
+                    N_Prime = X[start:end].shape[0]
+                    sPrime = y[start:end] * np.dot(X[start:end], self.w)
+
+                    term1 = (1.0 - ((2.0*lam*eta)/N_Prime))*self.w
+                    term2 = (eta/N_Prime) * np.dot(X[start:end].T,(y[start:end] * LogisticRegression._v_sigmoid(-1.0 * sPrime)))
                     self.w = term1 + term2
-                    # print(f"w: {self.w[:5]}\n")
                 
 
     
@@ -155,7 +116,7 @@ class LogisticRegression:
             return: 
                 n x 1 matrix: each row is the probability of each sample being positive. 
         '''
-        return LogisticRegression._v_sigmoid(X@self.w)
+        return LogisticRegression._v_sigmoid(np.dot(X,self.w))
     
     
     def error(self, X, y):
@@ -172,16 +133,12 @@ class LogisticRegression:
         
 
         predictions = np.dot(X,self.w)
-        # prediction_signs = np.sign(predictions)
-        # print("predictions: ",predictions[:10])
-        predictions = predictions - 0.1 # treating 0s as -1. 0's and -0's can throw this off
         predictions = np.sign(predictions)
-        number_of_errors = np.sum(predictions != y)
-
-        # for i in range(len(predictions)):
-        #     # print(f"pred: {np.sign(predictions[i][0])} y: {y[i][0]}")
-        #     if (np.sign(predictions[i]) != y[i]):
-        #         number_of_errors += 1
+        # print(f"predictions: {predictions[0:5]}")
+        predictions = predictions - 0.1 # treating 0s as -1. 0's. 0's can be -0 or +0 and will throw error off
+        predictions = np.sign(predictions)
+        # print(f"predictions: {predictions[0:5]}")
+        number_of_errors = np.sum(predictions != y) # boolean evaluates to 1 if != and 0 if ==
 
         return number_of_errors
         '''
