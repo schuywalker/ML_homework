@@ -116,7 +116,7 @@ class LogisticRegression:
             return: 
                 n x 1 matrix: each row is the probability of each sample being positive. 
         '''
-        return LogisticRegression._v_sigmoid(np.dot(X,self.w))
+        return LogisticRegression._v_sigmoid(X,self.w)
     
     
     def error(self, X, y):
