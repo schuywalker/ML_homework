@@ -82,9 +82,6 @@ class LogisticRegression:
                         sPrime = y[start:end] * (np.dot(X[start:end], self.w))
                         N_Prime = X[start:end].shape[0]
                         
-                        if (i > 10 and i < 13):
-                            print(f"i: {i} j: {j} start: {start} end: {end} len(X): {len(X)} localRunLength: {localRunLength} N_Prime: {N_Prime} sPrime: {sPrime.shape}")
-
                         term1 = (1.0 - ((2.0*lam*eta)/N_Prime))*self.w
                         term2 = (eta/N_Prime) * np.dot(X[start:end].T,(y[start:end] * LogisticRegression._v_sigmoid(-1.0 * sPrime)))
                         self.w = term1 + term2
@@ -116,7 +113,9 @@ class LogisticRegression:
             return: 
                 n x 1 matrix: each row is the probability of each sample being positive. 
         '''
-        return LogisticRegression._v_sigmoid(X,self.w)
+        X = MyUtils.z_transform(X, self.degree) 
+        X = np.insert(X, 0, 1, axis=1)
+        return LogisticRegression._v_sigmoid(np.dot(X,self.w))
     
     
     def error(self, X, y):
@@ -141,23 +140,7 @@ class LogisticRegression:
         number_of_errors = np.sum(predictions != y) # boolean evaluates to 1 if != and 0 if ==
 
         return number_of_errors
-        '''
-        negativeY = -1 * y
-        crossEntropyExponent = weightedSampleDotProduct.T@negativeY
-        # print(f"in error method. type: {type(crossEntropyExponent)}, shape: {crossEntropyExponent.shape}")
-        
-        vectorized_e_to_arg = np.vectorize(math.exp)
-        eToYWX = vectorized_e_to_arg(crossEntropyExponent) 
-        OnePlus_e_ToYWX = 1 + eToYWX # applies to every cell in matrix
-        
-        sumOfErrors = vectorized_e_to_arg(OnePlus_e_ToYWX) # calling sum because we used dot product, which summed each element..
-        
-        # print(f"sumOfErrors: {sumOfErrors}")
-        sumDividedByN = (1/N)*sumOfErrors
-        ret = sumDividedByN[0][0]
-        print(f"ret: {ret}")
-        return (ret)
-        '''
+      
     
 
     def _v_sigmoid(s):
