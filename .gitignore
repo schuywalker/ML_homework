@@ -17,3 +17,5 @@ prog5/tester/tester-1.py
 prog5/tester/tester1-SGD-only.py
 
 prog5/code_logistic_regression/test_logistic_real_world.ipynb
+
+*.csv
