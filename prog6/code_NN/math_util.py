@@ -49,7 +49,11 @@ class MyMath:
             return: the numpy array where every element is logistic of 
                     the corresponding element in array x
         '''
-        return ((np.tanh(x / 2.0) + 1.0) / 2.0)
+        x = np.array(x)
+        xx = np.divide(x, 2.0)
+        xxx = np.tanh(xx) + 1.0
+        ret = np.divide(xxx,2.0)
+        return ret
     # lazy way: rewrite tanh(x) as a function of x. google sigmoid function as a function of tanh
     # algebra out the tanh(x) = on slide 17. 1/2(tanh(x/2)+1)
 
@@ -62,7 +66,7 @@ class MyMath:
             return: the numpy array where every element is logistic derivative of 
                     the corresponding element in array x
         '''
-        return (MyMath.tanh_de(x / 0.5)) / 4.0
+        return np.divide((MyMath.tanh_de(np.divide(x,2.0))), 4.0)
 # deriv of logis.1/4(tanh'(x/2)) = sig'(x)
 # just called func you already wrote
 # turn to array

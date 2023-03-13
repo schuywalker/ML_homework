@@ -11,8 +11,8 @@
 
 import numpy as np
 import math
-import math_util as mu
-import nn_layer
+from . import math_util as mu
+from . import nn_layer
 
 
 class NeuralNetwork:
@@ -37,15 +37,34 @@ class NeuralNetwork:
             - 'iden': the identity function
             - 'relu': the ReLU function
         '''
-        
-        pass
+        self.layers.append(nn_layer.NeuralLayer(d, act))
+        self.L += 1
+
     
 
     def _init_weights(self):
         ''' Initialize every layer's edge weights with random numbers from [-1/sqrt(d),1/sqrt(d)], 
             where d is the number of nonbias node of the layer
         '''
-        pass
+        # W rows are nodes in layer L-1, columns are nodes in current layer L
+        # W[i,j] is the weight of the edge from node i in layer L-1 to node j in layer L
+        for L in range(1,len(self.layers)):
+            d = self.layers[L].d
+            # if (L < len(self.layers)-1):
+            #     d += 1 # bias node, except on last layer
+            d_Lminus1 = self.layers[L-1].d
+            # if (L > 1):
+            #     d_Lminus1 += 1 # bias node, except on first layer
+            L_W = np.random.uniform((-1/math.sqrt(d)),(1/math.sqrt(d)),(d_Lminus1,d)) # uniform distribution between (low, high)
+            L_W = np.reshape(L_W, (d_Lminus1, d))
+            # if (L != len(self.layers)-1):
+            L_W = np.insert(L_W, 0, 1, axis=0)
+            self.layers[L].W = L_W
+            
+            # print(f"layer {L}.W (weights from L{L-1} to L{L})\tshape:{self.layers[L].W.shape}\n")
+            print(f"layer {L}.W (weights from L{L-1} to L{L})\tshape:{self.layers[L].W.shape}\n", L_W, "\n")
+            
+        # bias nodes initialized to 1 ???????
     
     
         
@@ -101,3 +120,11 @@ class NeuralNetwork:
         
         pass
  
+        def forward_feed(self, X):
+            '''
+            use in predicct and error'''
+            pass
+
+        def prep(self, X):
+            ''' bias node and ... '''
+            pass
